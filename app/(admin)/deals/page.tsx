@@ -2,15 +2,7 @@ import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Plus, ArrowRight } from "lucide-react";
+import { Plus, ArrowRight, MapIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DealStage } from "@prisma/client";
 
@@ -55,11 +47,9 @@ export default async function DealsPage() {
   });
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="px-4 py-6 sm:p-8 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Deals
-        </h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Deals</h1>
         <Button asChild className="btn-glow gap-2">
           <Link href="/deals/new">
             <Plus className="h-4 w-4" />
@@ -70,92 +60,75 @@ export default async function DealsPage() {
 
       {deals.length === 0 ? (
         <div className="glass-card rounded-2xl text-center py-20">
-          <p className="text-base mb-4 text-muted-foreground">
-            No deals yet.
-          </p>
+          <p className="text-base mb-4 text-muted-foreground">No deals yet.</p>
           <Button asChild className="btn-glow">
             <Link href="/deals/new">Create your first deal</Link>
           </Button>
         </div>
       ) : (
-        <div className="glass-card rounded-2xl overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-b border-border">
-                {["Deal", "Client", "Owner", "Stage", "Value", "MAP", ""].map((h) => (
-                  <TableHead
-                    key={h}
-                    className="text-xs font-semibold uppercase tracking-wider py-3 text-muted-foreground"
-                  >
-                    {h}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {deals.map((deal) => {
-                const mapStatusClass = deal.map
-                  ? (MAP_STATUS_CLASSES[deal.map.status] ?? MAP_STATUS_CLASSES.DRAFT)
-                  : null;
-                return (
-                  <TableRow
-                    key={deal.id}
-                    className="transition-colors border-b border-border hover:bg-primary/[0.04]"
-                  >
-                    <TableCell>
-                      <Link
-                        href={`/deals/${deal.id}`}
-                        className="text-sm font-medium transition-colors text-foreground hover:text-primary"
-                      >
-                        {deal.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {deals.map((deal) => {
+            const mapStatusClass = deal.map
+              ? (MAP_STATUS_CLASSES[deal.map.status] ?? MAP_STATUS_CLASSES.DRAFT)
+              : null;
+
+            return (
+              <Link
+                key={deal.id}
+                href={`/deals/${deal.id}`}
+                className="glass-card rounded-2xl p-5 flex flex-col gap-4 transition-shadow hover:shadow-md group"
+              >
+                {/* Top: name + stage */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                      {deal.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">
                       {deal.client.companyName}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {deal.owner.name}
-                    </TableCell>
-                    <TableCell>
+                    </p>
+                  </div>
+                  <span
+                    className={cn(
+                      "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0",
+                      STAGE_COLORS[deal.stage]
+                    )}
+                  >
+                    {STAGE_LABELS[deal.stage]}
+                  </span>
+                </div>
+
+                {/* Middle: value + owner */}
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <span className="font-medium text-foreground">
+                    {deal.dealValue ? `$${Number(deal.dealValue).toLocaleString()}` : "—"}
+                  </span>
+                  <span>·</span>
+                  <span className="truncate">{deal.owner.name}</span>
+                </div>
+
+                {/* Bottom: MAP status + arrow */}
+                <div className="flex items-center justify-between pt-2 border-t border-border">
+                  <div className="flex items-center gap-1.5">
+                    <MapIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                    {deal.map && mapStatusClass ? (
                       <span
                         className={cn(
-                          "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                          STAGE_COLORS[deal.stage]
+                          "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+                          mapStatusClass
                         )}
                       >
-                        {STAGE_LABELS[deal.stage]}
+                        {deal.map.status}
                       </span>
-                    </TableCell>
-                    <TableCell className="text-sm font-medium text-foreground">
-                      {deal.dealValue ? `$${Number(deal.dealValue).toLocaleString()}` : "—"}
-                    </TableCell>
-                    <TableCell>
-                      {deal.map && mapStatusClass ? (
-                        <span
-                          className={cn(
-                            "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                            mapStatusClass
-                          )}
-                        >
-                          {deal.map.status}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Link
-                        href={`/deals/${deal.id}`}
-                        className="flex items-center justify-center h-7 w-7 rounded-lg transition-colors text-muted-foreground hover:text-primary hover:bg-primary/10"
-                      >
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">No plan</span>
+                    )}
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

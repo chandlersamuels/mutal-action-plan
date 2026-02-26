@@ -3,9 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapIcon, Plus, User, DollarSign, Calendar } from "lucide-react";
+import { ArrowLeft, MapIcon, User, DollarSign, Calendar, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DealStage } from "@prisma/client";
+import { DealShareButton } from "@/components/admin/deal-share-button";
 
 const STAGE_LABELS: Record<DealStage, string> = {
   DISCOVERY: "Discovery",
@@ -55,7 +56,7 @@ export default async function DealDetailPage({
   if (!deal) notFound();
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="px-4 py-6 sm:p-8 max-w-5xl mx-auto">
       <Link
         href="/deals"
         className="inline-flex items-center gap-1.5 text-sm mb-7 transition-colors text-muted-foreground hover:text-primary"
@@ -85,7 +86,7 @@ export default async function DealDetailPage({
       </div>
 
       {/* Info cards */}
-      <div className="grid grid-cols-3 gap-5 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {[
           {
             label: "Owner",
@@ -121,7 +122,7 @@ export default async function DealDetailPage({
             >
               <Icon className="h-4 w-4" style={{ color }} />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-xs font-medium mb-1 text-muted-foreground">
                 {label}
               </p>
@@ -129,7 +130,7 @@ export default async function DealDetailPage({
                 {primary}
               </p>
               {secondary && (
-                <p className="text-xs mt-0.5 text-muted-foreground">
+                <p className="text-xs mt-0.5 text-muted-foreground truncate">
                   {secondary}
                 </p>
               )}
@@ -138,56 +139,117 @@ export default async function DealDetailPage({
         ))}
       </div>
 
-      {/* MAP Section */}
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/[0.12]">
-              <MapIcon className="h-4 w-4 text-primary" />
-            </div>
-            <h2 className="text-sm font-semibold text-foreground">
-              Mutual Action Plan
-            </h2>
-          </div>
-          {deal.map && (
-            <Button asChild size="sm" className="btn-glow">
-              <Link href={`/deals/${deal.id}/map`}>Open MAP Editor</Link>
-            </Button>
-          )}
-        </div>
+      {/* Action Plan Section */}
+      {(() => {
+        const hasMap = !!deal.map;
+        const hasPhases = (deal.map?.phases.length ?? 0) > 0;
 
-        <div className="px-6 py-5">
-          {!deal.map ? (
-            <div className="text-center py-8">
-              <p className="text-sm mb-4 text-muted-foreground">
-                No MAP created yet for this deal.
-              </p>
-              <Button asChild size="sm" className="btn-glow">
-                <Link href={`/deals/${deal.id}/map`}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create MAP
-                </Link>
-              </Button>
-            </div>
-          ) : (
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <p className="text-sm font-medium text-foreground">
-                  {deal.map.title}
-                </p>
-                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-primary/[0.12] text-primary">
-                  {deal.map.status}
-                </span>
+        const STATUS_DOT: Record<string, string> = {
+          NOT_STARTED: "bg-muted-foreground/40",
+          IN_PROGRESS:  "bg-primary",
+          COMPLETE:     "bg-emerald-500",
+          AT_RISK:      "bg-amber-500",
+          BLOCKED:      "bg-red-500",
+        };
+
+        return (
+          <div className="glass-card rounded-2xl overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center gap-2.5 px-6 py-4 border-b border-border">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/12">
+                <MapIcon className="h-4 w-4 text-primary" />
               </div>
-              <p className="text-xs text-muted-foreground">
-                {deal.map.phases.length} phases ·{" "}
-                {deal.map.phases.reduce((s, p) => s + p.tasks.length, 0)} tasks ·{" "}
-                {deal.map.shareTokens.length} active share link(s)
-              </p>
+              <h2 className="text-sm font-semibold text-foreground">Action Plan</h2>
+              {hasMap && (
+                <div className="ml-auto flex items-center gap-2">
+                  <Button asChild size="sm" variant="outline" className="shrink-0">
+                    <Link href={`/deals/${deal.id}/map`}>Edit plan</Link>
+                  </Button>
+                  <DealShareButton
+                    dealId={deal.id}
+                    mapId={deal.map!.id}
+                    hasPhases={hasPhases}
+                    initialTokens={deal.map!.shareTokens}
+                  />
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </div>
+
+            {/* Body */}
+            {!hasMap ? (
+              <div className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
+                <p className="text-sm text-muted-foreground">
+                  No action plan yet. Create one to start collaborating with your client.
+                </p>
+                <Button asChild size="sm" className="btn-glow">
+                  <Link href={`/deals/${deal.id}/map`}>Create plan</Link>
+                </Button>
+              </div>
+            ) : !hasPhases ? (
+              <div className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
+                <p className="text-sm text-muted-foreground">
+                  Your plan has no phases yet. Open the editor to build it out.
+                </p>
+                <Button asChild size="sm" variant="outline">
+                  <Link href={`/deals/${deal.id}/map`}>Open editor</Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {deal.map!.phases.map((phase) => {
+                  const total = phase.tasks.length;
+                  const done  = phase.tasks.filter((t) => t.status === "COMPLETE").length;
+                  const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+
+                  return (
+                    <div key={phase.id} className="px-6 py-4">
+                      {/* Phase row */}
+                      <div className="flex items-center justify-between gap-3 mb-3">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {phase.name}
+                          </p>
+                        </div>
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          {done}/{total} complete
+                        </span>
+                      </div>
+
+                      {/* Progress bar */}
+                      <div className="h-1 rounded-full bg-muted mb-3">
+                        <div
+                          className="h-1 rounded-full bg-primary transition-all"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+
+                      {/* Tasks */}
+                      {phase.tasks.length > 0 && (
+                        <div className="space-y-1.5 pl-5">
+                          {phase.tasks.map((task) => (
+                            <div key={task.id} className="flex items-center gap-2">
+                              <span
+                                className={cn(
+                                  "h-1.5 w-1.5 rounded-full shrink-0",
+                                  STATUS_DOT[task.status] ?? "bg-muted-foreground/40"
+                                )}
+                              />
+                              <p className="text-xs text-muted-foreground truncate">
+                                {task.title}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }
