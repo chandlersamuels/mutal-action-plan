@@ -91,6 +91,11 @@ const CSS = `
 #lp .h1-mark::after { content:''; position:absolute; left:-2px; right:-2px; bottom:0; height:4px; background:var(--g); opacity:.38; border-radius:2px; transform:skewX(-4deg); }
 #lp .hero-sub { font-size:1.08rem; line-height:1.78; color:rgba(255,255,255,.52); max-width:450px; margin-bottom:34px; }
 #lp .hero-ctas { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+#lp .hero-benefits { display:flex; align-items:center; gap:20px; margin-top:22px; padding-top:18px; border-top:1px solid rgba(255,255,255,.07); }
+#lp .hb-item { display:flex; align-items:center; gap:7px; font-size:.8rem; color:rgba(255,255,255,.48); }
+#lp .hb-ic { width:18px; height:18px; border-radius:50%; background:rgba(34,197,94,.15); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+#lp .hb-ic svg { width:9px; height:9px; }
+#lp .hb-item strong { color:rgba(255,255,255,.82); font-weight:600; }
 #lp .hero-proof { display:flex; align-items:center; gap:9px; margin-top:34px; color:rgba(255,255,255,.32); font-size:.8rem; }
 #lp .pavs { display:flex; }
 #lp .pav { width:28px; height:28px; border-radius:50%; border:2px solid var(--dk); display:flex; align-items:center; justify-content:center; font-size:.58rem; font-weight:700; margin-left:-6px; }
@@ -722,6 +727,20 @@ export default function LandingPage() {
                 <div className="hero-ctas">
                   <Link href="/sign-up" className="btn btn-g">Start Closing Faster →</Link>
                   <a href="#lhow" className="btn btn-o">See How It Works</a>
+                </div>
+                <div className="hero-benefits">
+                  {[
+                    ["47% faster", "time-to-close"],
+                    ["3× more", "touchpoints"],
+                    ["31% higher", "win rates"],
+                  ].map(([num, label]) => (
+                    <div className="hb-item" key={label}>
+                      <div className="hb-ic">
+                        <svg viewBox="0 0 10 10" fill="none" stroke="#4ade80" strokeWidth={2}><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
+                      </div>
+                      <span><strong>{num}</strong> {label}</span>
+                    </div>
+                  ))}
                 </div>
                 <div className="hero-proof">
                   <div className="pavs">
