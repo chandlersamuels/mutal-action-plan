@@ -80,31 +80,32 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex items-center justify-between mb-6 sm:mb-10 gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             Dashboard
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Welcome back, {userName}
           </p>
         </div>
-        <Button asChild className="btn-glow gap-2">
+        <Button asChild className="btn-glow gap-2 shrink-0">
           <Link href="/deals/new">
             <Plus className="h-4 w-4" />
-            New Deal
+            <span className="hidden sm:inline">New Deal</span>
+            <span className="sm:hidden">New</span>
           </Link>
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-5 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-6 sm:mb-10">
         {stats.map(({ label, value, icon: Icon, color, bg }) => (
           <div
             key={label}
-            className="glass-card rounded-2xl px-6 py-5 flex items-center gap-4"
+            className="glass-card rounded-2xl px-5 py-4 sm:px-6 sm:py-5 flex items-center gap-4"
           >
             <div
               className="flex h-11 w-11 items-center justify-center rounded-xl flex-shrink-0"
@@ -126,7 +127,7 @@ export default async function DashboardPage() {
 
       {/* Recent Deals */}
       <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border">
           <h2 className="font-semibold text-sm text-foreground">
             Recent Deals
           </h2>
@@ -154,18 +155,19 @@ export default async function DashboardPage() {
               <Link
                 key={deal.id}
                 href={`/deals/${deal.id}`}
-                className="flex items-center justify-between px-6 py-3.5 transition-colors group hover:bg-primary/[0.04]"
+                className="flex items-center justify-between px-4 sm:px-6 py-3.5 transition-colors group hover:bg-primary/[0.04] gap-3"
                 style={{ color: "inherit" }}
               >
-                <div>
-                  <p className="text-sm font-medium text-foreground">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">
                     {deal.name}
                   </p>
-                  <p className="text-xs mt-0.5 text-muted-foreground">
-                    {deal.client.companyName} · {deal.owner.name}
+                  <p className="text-xs mt-0.5 text-muted-foreground truncate">
+                    {deal.client.companyName}
+                    <span className="hidden sm:inline"> · {deal.owner.name}</span>
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   {deal.map && (
                     <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-primary/[0.12] text-primary">
                       MAP
