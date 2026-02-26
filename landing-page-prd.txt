@@ -1,0 +1,161 @@
+Create a modern, high-converting SaaS landing page for a Mutual Action Plan (MAP) tool designed to give sales teams and prospects shared visibility into every step of the deal cycle — eliminating unknowns and accelerating closes.
+
+Target Audience
+
+Primary: Sales managers and sales executives at B2B companies with long, complex sales cycles (30–120+ day deal cycles)
+Secondary: Revenue operations leaders and CROs looking for pipeline predictability
+Tone: Confident, direct, outcome-driven. Speak to the pain of deals going dark, stalled pipelines, and lack of buyer alignment. Avoid jargon-heavy or overly corporate language — be sharp and modern.
+
+
+Design Requirements
+Color & Style
+
+Color palette: Bright/vibrant green as the primary accent, white and light gray backgrounds, dark text for contrast. Use green gradients sparingly for energy.
+Design style: Glassmorphism — frosted glass cards, subtle transparency, soft blurred backgrounds, layered depth. Clean and premium feeling.
+Animations: Smooth scroll-triggered animations (fade-ins, slide-ups, subtle parallax). Micro-interactions on buttons and cards (hover glows, gentle scaling). Animated hero section with a subtle particle or mesh gradient background.
+Mobile-first & responsive: Must look excellent on mobile. Sticky CTA, thumb-friendly tap targets, sections that stack cleanly.
+Conversion-optimized: Sticky header with CTA, multiple CTA touchpoints throughout the page, social proof near decision points, minimal friction.
+
+CRITICAL: Anti-Generic Design Directive
+This must NOT look like a typical AI-generated landing page. Avoid the following clichés at all costs:
+
+Perfectly symmetrical 3-column card grids
+Generic gradient blob backgrounds
+Cookie-cutter "How It Works" 1-2-3 step layouts with circles and arrows
+Uniform section padding with no visual rhythm variation
+Safe, predictable layouts where every section is centered and evenly spaced
+
+Instead, follow these creative principles:
+Layout & Composition
+
+Use asymmetric layouts — offset headings to the left while visuals float right, or vice versa. Let content breathe unevenly.
+Vary section heights dramatically — a tall immersive hero, a compact metrics strip, a wide-open whitespace section, then a dense feature area. Create visual rhythm.
+Use overlapping elements — let cards, images, or UI mockups break out of their sections and overlap into adjacent ones. Nothing should feel boxed in.
+Implement a horizontal scroll showcase for at least one section (e.g., features or integrations) — break the vertical scroll monotony.
+Use staggered/masonry-style grids instead of perfectly aligned columns.
+
+Section Transitions
+
+No hard cuts between sections. Use creative transitions such as:
+
+Angled/diagonal dividers (CSS clip-path or SVG shapes) between sections
+Organic wave or curved separators that feel fluid, not mechanical
+Color bleeds where one section's background gradually shifts into the next
+Parallax layering where background elements from one section remain visible as you scroll into the next
+
+
+At least one section should use a reveal-on-scroll effect where content "unfolds" or "builds" as the user scrolls — not just fade in, but structurally assemble (e.g., timeline nodes connecting with animated lines, cards sliding in from different directions at staggered intervals)
+
+Creative Components
+
+Hero section: Don't just show a static mockup. Build an interactive or animated mini-demo — a stylized MAP timeline where tasks visually check off, progress bars animate, and avatars appear as if buyer and seller are collaborating in real time. Make it feel alive.
+Metrics section: Instead of static number cards, use a scrollytelling counter where numbers rapidly count up as they enter the viewport, paired with a subtle background visual (like a pipeline funnel that fills or a deal timeline that accelerates).
+Problem section: Instead of 3 icon cards, use a "before/after" split-screen or slider — left side shows the chaotic, no-visibility sales process (dark, cluttered, red accents), right side shows the MAP-enabled process (clean, green, organized). Let the user drag a divider or have it animate on scroll.
+Features section: Use a tabbed or interactive showcase rather than a static grid — clicking/hovering each feature morphs a central mockup or illustration to show that feature in context. Or use a scroll-jacked feature spotlight where each feature gets its own mini-scene as you scroll.
+Integrations section: Instead of a static logo row, show the logos orbiting or connected via animated node lines — like a living ecosystem diagram. Or have each logo on a glassmorphic floating card with subtle depth and hover parallax.
+Testimonial section: Use an oversized pull-quote design with large serif typography, not a small card. Consider a slow auto-rotating carousel with a frosted glass background and subtle ken-burns movement on background elements.
+
+Typography & Micro-Details
+
+Use two contrasting typefaces — a bold, modern display/sans-serif for headlines (something with personality, not just Inter or Plus Jakarta Sans) and a clean readable font for body text.
+Mix in one accent element that feels hand-crafted — a subtle hand-drawn arrow, an underline that looks like a marker stroke, or a highlight effect behind key words.
+Use variable font weight animations on hover for nav items or key headlines.
+Add cursor-reactive elements — subtle parallax on glassmorphic cards that tilt slightly toward the mouse, or a soft glow that follows the cursor in the hero section.
+
+Motion & Animation Philosophy
+
+Animations should feel physics-based and organic — use spring/elastic easing curves, not linear or basic ease-in-out. Elements should feel like they have weight.
+Stagger everything — when multiple elements enter the viewport, they should cascade in sequence (50-100ms delays), never all appear at once.
+Add at least one scroll-linked animation where an element's position, scale, rotation, or opacity is directly tied to scroll progress (not just triggered by scroll).
+Subtle floating/breathing animations on background elements — gentle up-down oscillation on decorative shapes, slow rotation on gradient orbs.
+
+Mobile-Specific Creativity
+
+Don't just stack the desktop layout. Reimagine interactions for touch — horizontal scroll carousels instead of grids, swipeable before/after comparisons, tap-to-reveal feature cards.
+Use full-bleed visuals on mobile that feel immersive, not cramped.
+Keep the creative transitions (diagonal dividers, wave separators) but ensure they perform smoothly at 60fps on mobile.
+
+
+Page Sections (in order)
+1. Hero Section
+
+Bold headline addressing the core pain point (deals stalling, lack of buyer-seller alignment, no visibility into what happens after the demo)
+Subheadline reinforcing the solution — a shared action plan that keeps both sides accountable
+Primary CTA button (e.g., "Start Closing Faster" or "Get Early Access") and a secondary ghost/outline CTA (e.g., "See How It Works")
+Hero visual: an animated, interactive mini-demo of the MAP interface — a shared timeline or checklist between buyer and seller with tasks checking off, progress bars filling, and collaboration avatars appearing in real time
+
+2. Pain Point / Problem Section
+
+Before/after split-screen or slider design:
+
+Left/"Before" side: the chaotic, no-visibility sales process (dark tones, cluttered, red accents) — deals going dark, no shared understanding of next steps, managers flying blind on deal progress
+Right/"After" side: the MAP-enabled process (clean, bright green, organized) — full alignment, shared accountability, clear pipeline visibility
+
+
+Animate on scroll or let the user drag a divider. Keep copy short, punchy, and emotionally resonant.
+
+3. Key Metrics / Social Proof Strip
+
+Display 3 key stats with animated scrollytelling counters that count up as they enter the viewport:
+
+X% average increase in deal velocity
+X% improvement in close rates
+Greater stickiness — more touchpoints, better visibility, and continuous buyer-seller communication
+
+
+Use placeholder "X%" values to fill in later. Style as large, eye-catching numbers with brief descriptors. Pair with a subtle background visual like a pipeline funnel filling or a deal timeline accelerating.
+
+4. How It Works
+
+Scroll-triggered reveal where each step structurally assembles as the user scrolls — timeline nodes connecting with animated lines, elements building in sequence:
+
+Create — Build a shared action plan with your prospect in seconds
+Collaborate — Both sides see tasks, timelines, and owners in real time
+Close — Track progress, remove blockers, and accelerate the deal to close
+
+
+Use asymmetric layout with staggered card entrances, NOT a standard centered 3-step layout
+
+5. Features Section
+
+Tabbed or interactive showcase — clicking/hovering each feature morphs a central mockup to show that feature in context. Or a scroll-jacked feature spotlight where each feature gets its own mini-scene:
+
+Shared deal timelines with real-time status
+Task ownership and accountability tracking
+Automated nudges and reminders
+Stakeholder mapping (know every decision-maker)
+Activity feed and engagement analytics
+Manager dashboard for pipeline visibility
+
+
+
+6. Integrations Section
+
+"Works with the tools you already use"
+Display HubSpot, Salesforce, and Slack logos as an animated ecosystem diagram — orbiting or connected via animated node lines on glassmorphic floating cards with subtle depth and hover parallax
+Brief copy about seamless CRM sync, Slack notifications, and no workflow disruption
+
+7. Testimonial / Social Proof Section
+
+Oversized pull-quote design with large serif typography
+Slow auto-rotating carousel with frosted glass background and subtle ken-burns movement
+Placeholder for 2–3 customer quotes from sales leaders (name, title, company — placeholders fine)
+
+8. Final CTA Section
+
+Strong closing headline (e.g., "Stop Losing Deals to Confusion" or "Your Buyers Want Clarity — Give It to Them")
+Repeat the primary CTA with an email capture field or "Book a Demo" button
+Optional urgency element: "Join the early access waitlist" or "Limited beta spots available"
+
+9. Footer
+
+Standard footer with nav links, social icons, legal links
+Minimal and clean
+
+
+Technical Notes
+
+Use smooth, performant CSS animations (prefer CSS transitions and IntersectionObserver over heavy JS animation libraries)
+Ensure accessibility basics: proper contrast ratios, semantic HTML, keyboard navigation
+Placeholder images and logos are fine — use clean SVG icons or simple shapes where needed
+All animations must run at 60fps on mobile devices

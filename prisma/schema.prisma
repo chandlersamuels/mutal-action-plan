@@ -1,0 +1,373 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum TaskOwner {
+  PROVIDER
+  CLIENT
+  JOINT
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETE
+  AT_RISK
+  BLOCKED
+}
+
+enum DealStage {
+  DISCOVERY
+  PROPOSAL
+  EVALUATION
+  SOW_REVIEW
+  NEGOTIATION
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+enum MapStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum NotificationType {
+  DEADLINE_REMINDER
+  TASK_UPDATED_BY_CLIENT
+  TASK_OVERDUE
+  MAP_SHARED
+  DEAL_AT_RISK
+  TASK_STATUS_CHANGED
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+enum SyncDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum SyncStatus {
+  SUCCESS
+  FAILED
+  PENDING
+}
+
+// ─────────────────────────────────────────────
+// ORGANIZATIONS
+// ─────────────────────────────────────────────
+
+model Organization {
+  id                  String    @id @default(cuid())
+  name                String
+  slug                String    @unique
+  logoUrl             String?
+  hubspotPortalId     String?   @unique // Phase 3
+  hubspotAccessToken  String? // Phase 3 (encrypted)
+  hubspotRefreshToken String? // Phase 3 (encrypted)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  users     User[]
+  clients   Client[]
+  deals     Deal[]
+  templates MapTemplate[]
+}
+
+// ─────────────────────────────────────────────
+// USERS (Admin/Provider Team)
+// ─────────────────────────────────────────────
+
+model User {
+  id             String   @id @default(cuid())
+  clerkId        String   @unique
+  email          String   @unique
+  name           String
+  role           UserRole @default(MEMBER)
+  organizationId String
+  hubspotOwnerId String? // Phase 3
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization    @relation(fields: [organizationId], references: [id])
+  deals        Deal[]          @relation("DealOwner")
+  createdMaps  Map[]           @relation("MapCreator")
+  shareTokens  MapShareToken[]
+  activityLog  MapActivity[]
+}
+
+// ─────────────────────────────────────────────
+// CLIENTS
+// ─────────────────────────────────────────────
+
+model Client {
+  id               String   @id @default(cuid())
+  organizationId   String
+  companyName      String
+  website          String?
+  hubspotCompanyId String? // Phase 3
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  organization Organization    @relation(fields: [organizationId], references: [id])
+  contacts     ClientContact[]
+  deals        Deal[]
+}
+
+model ClientContact {
+  id               String   @id @default(cuid())
+  clientId         String
+  name             String
+  email            String
+  title            String?
+  isChampion       Boolean  @default(false)
+  hubspotContactId String? // Phase 3
+  createdAt        DateTime @default(now())
+
+  client        Client         @relation(fields: [clientId], references: [id])
+  tasks         MapTask[]      @relation("TaskClientContact")
+  notifications Notification[]
+}
+
+// ─────────────────────────────────────────────
+// DEALS
+// ─────────────────────────────────────────────
+
+model Deal {
+  id              String    @id @default(cuid())
+  organizationId  String
+  clientId        String
+  ownerId         String
+  name            String
+  dealValue       Decimal?  @db.Decimal(12, 2)
+  stage           DealStage @default(DISCOVERY)
+  targetCloseDate DateTime?
+  actualCloseDate DateTime?
+  hubspotDealId   String? // Phase 3
+  isArchived      Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  organization    Organization     @relation(fields: [organizationId], references: [id])
+  client          Client           @relation(fields: [clientId], references: [id])
+  owner           User             @relation("DealOwner", fields: [ownerId], references: [id])
+  map             Map?
+  hubspotSyncLogs HubspotSyncLog[] // Phase 3
+}
+
+// ─────────────────────────────────────────────
+// MAPS
+// ─────────────────────────────────────────────
+
+model Map {
+  id          String    @id @default(cuid())
+  dealId      String    @unique
+  title       String
+  status      MapStatus @default(ACTIVE)
+  createdById String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  deal          Deal            @relation(fields: [dealId], references: [id])
+  createdBy     User            @relation("MapCreator", fields: [createdById], references: [id])
+  phases        MapPhase[]
+  shareTokens   MapShareToken[]
+  activityLog   MapActivity[]
+  notifications Notification[]
+}
+
+model MapPhase {
+  id           String   @id @default(cuid())
+  mapId        String
+  name         String
+  displayOrder Int
+  createdAt    DateTime @default(now())
+
+  map   Map       @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  tasks MapTask[]
+}
+
+model MapTask {
+  id                  String     @id @default(cuid())
+  phaseId             String
+  mapId               String // denormalized for easy querying
+  title               String
+  description         String?    @db.Text
+  owner               TaskOwner
+  providerContact     String? // free text: role/name on provider side
+  clientContactId     String?
+  estimatedDays       Int?
+  targetDate          DateTime?
+  completedDate       DateTime?
+  originalTargetDate  DateTime? // set once on first target date assignment; used for at-risk detection
+  status              TaskStatus @default(NOT_STARTED)
+  dependsOn           String[] // array of MapTask IDs
+  successCriteria     String?    @db.Text
+  internalNotes       String?    @db.Text // never sent to client
+  isClientVisible     Boolean    @default(true)
+  isTbdWithClient     Boolean    @default(false) // flags steps needing client input on dates
+  isForecastMilestone Boolean    @default(false)
+  forecastProbability Int? // 0–100, only used if isForecastMilestone = true
+  displayOrder        Int
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  phase         MapPhase       @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  clientContact ClientContact? @relation("TaskClientContact", fields: [clientContactId], references: [id])
+  activityLog   MapActivity[]
+  notifications Notification[]
+}
+
+// ─────────────────────────────────────────────
+// SHARE TOKENS
+// ─────────────────────────────────────────────
+
+model MapShareToken {
+  id               String    @id @default(cuid())
+  mapId            String
+  token            String    @unique // cryptographically random, URL-safe
+  isActive         Boolean   @default(true)
+  allowClientEdits Boolean   @default(true)
+  allowClientNotes Boolean   @default(true)
+  expiresAt        DateTime?
+  createdById      String
+  lastAccessedAt   DateTime?
+  totalViews       Int       @default(0)
+  createdAt        DateTime  @default(now())
+
+  map       Map  @relation(fields: [mapId], references: [id])
+  createdBy User @relation(fields: [createdById], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// ACTIVITY LOG
+// ─────────────────────────────────────────────
+
+model MapActivity {
+  id              String   @id @default(cuid())
+  mapId           String
+  taskId          String?
+  actorUserId     String? // null if actor was client
+  actorShareToken String? // set when client makes a change
+  actorLabel      String // display name: "John Smith" or "Client (via shared link)"
+  action          String // e.g. "updated status", "changed target date", "added note"
+  fieldChanged    String?
+  oldValue        String?
+  newValue        String?
+  note            String?  @db.Text
+  createdAt       DateTime @default(now())
+
+  map       Map      @relation(fields: [mapId], references: [id])
+  task      MapTask? @relation(fields: [taskId], references: [id])
+  actorUser User?    @relation(fields: [actorUserId], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// TEMPLATES
+// ─────────────────────────────────────────────
+
+model MapTemplate {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  description    String?
+  isDefault      Boolean  @default(false)
+  createdById    String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization       @relation(fields: [organizationId], references: [id])
+  phases       MapTemplatePhase[]
+}
+
+model MapTemplatePhase {
+  id           String @id @default(cuid())
+  templateId   String
+  name         String
+  displayOrder Int
+
+  template MapTemplate       @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  tasks    MapTemplateTask[]
+}
+
+model MapTemplateTask {
+  id                  String    @id @default(cuid())
+  phaseId             String
+  title               String
+  description         String?   @db.Text
+  owner               TaskOwner
+  providerContact     String?
+  estimatedDays       Int?
+  successCriteria     String?   @db.Text
+  isClientVisible     Boolean   @default(true)
+  isTbdWithClient     Boolean   @default(false)
+  isForecastMilestone Boolean   @default(false)
+  forecastProbability Int?
+  displayOrder        Int
+
+  phase MapTemplatePhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────────
+
+model Notification {
+  id                 String             @id @default(cuid())
+  mapId              String
+  taskId             String?
+  recipientUserId    String? // admin user recipient
+  recipientContactId String? // client contact recipient
+  recipientEmail     String? // fallback email
+  type               NotificationType
+  status             NotificationStatus @default(PENDING)
+  scheduledFor       DateTime
+  sentAt             DateTime?
+  payload            Json // email subject, body context, etc.
+  createdAt          DateTime           @default(now())
+
+  map              Map            @relation(fields: [mapId], references: [id])
+  task             MapTask?       @relation(fields: [taskId], references: [id])
+  recipientContact ClientContact? @relation(fields: [recipientContactId], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// HUBSPOT (Phase 3)
+// ─────────────────────────────────────────────
+
+model HubspotSyncLog {
+  id                String        @id @default(cuid())
+  dealId            String?
+  hubspotObjectType String // "deal", "contact", "company"
+  hubspotObjectId   String
+  direction         SyncDirection
+  status            SyncStatus
+  errorMessage      String?
+  payload           Json?
+  syncedAt          DateTime      @default(now())
+
+  deal Deal? @relation(fields: [dealId], references: [id])
+}
