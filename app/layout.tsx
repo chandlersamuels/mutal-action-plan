@@ -15,10 +15,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Antistall — Keep Deals Moving",
+  title: "Antistall — Mutual Action Plans That Keep Deals Moving",
   description: "Shared action plans that move deals from stalled to signed.",
   openGraph: {
-    title: "Antistall — Keep Deals Moving",
+    title: "Antistall — Mutual Action Plans That Keep Deals Moving",
     description: "Shared action plans that move deals from stalled to signed.",
     url: "https://antistall.com",
     siteName: "Antistall",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
         url: "https://antistall.com/opengraph-image.png",
         width: 1200,
         height: 630,
-        alt: "Antistall — Keep Deals Moving",
+        alt: "Antistall — Mutual Action Plans That Keep Deals Moving",
       },
     ],
     type: "website",
