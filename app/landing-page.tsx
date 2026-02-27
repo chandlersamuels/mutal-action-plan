@@ -309,25 +309,6 @@ const CSS = `
 #lp .integ-item-d { font-size:.8rem; color:rgba(255,255,255,.38); line-height:1.65; }
 @media(max-width:700px){ #lp .eco-wrap{width:320px;height:320px} #lp .integ-copy{grid-template-columns:1fr} }
 
-/* TESTIMONIALS */
-#ltestimonials { background:#f7f8fc; padding:120px 0; overflow:hidden; }
-#lp .test-inner { max-width:840px; margin:0 auto; text-align:center; }
-#lp .test-qm { font-family:Georgia,serif; font-size:6.5rem; line-height:.4; color:var(--g); opacity:.22; display:block; margin-bottom:20px; }
-#lp .test-track { overflow:hidden; }
-#lp .test-slides { display:flex; transition:transform .7s var(--ease); }
-#lp .test-slide { min-width:100%; padding:0 12px; }
-#lp .test-quote { font-family:Georgia,'Times New Roman',serif; font-size:clamp(1.15rem,2.1vw,1.55rem); line-height:1.65; color:var(--dk2); font-style:italic; margin-bottom:26px; }
-#lp .test-author { display:flex; align-items:center; justify-content:center; gap:12px; }
-#lp .test-av { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.78rem; flex-shrink:0; }
-#lp .test-av-1 { background:linear-gradient(135deg,#4f46e5,#7c3aed); color:#fff; }
-#lp .test-av-2 { background:linear-gradient(135deg,#0891b2,#0e7490); color:#fff; }
-#lp .test-av-3 { background:linear-gradient(135deg,#be185d,#9d174d); color:#fff; }
-#lp .test-nm { font-family:var(--fd); font-size:.88rem; font-weight:700; color:var(--dk2); text-align:left; }
-#lp .test-rl { font-size:.76rem; color:var(--gr); text-align:left; margin-top:2px; }
-#lp .test-dots { display:flex; justify-content:center; gap:7px; margin-top:32px; }
-#lp .tdot { width:6px; height:6px; border-radius:3px; background:#d1d5db; cursor:pointer; transition:all .3s; }
-#lp .tdot.active { width:22px; background:var(--g); }
-
 /* CTA */
 #lcta { background:var(--dk); padding:120px 0; text-align:center; position:relative; overflow:hidden; }
 #lp .cta-glow { position:absolute; width:900px; height:400px; background:radial-gradient(ellipse,rgba(34,197,94,.1) 0%,transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; }
@@ -483,22 +464,9 @@ const FEATURES = [
   },
 ];
 
-const TESTIMONIALS = [
-  { av:"SL", avClass:"test-av-1", quote:"We used to lose deals in the gap between the demo and the decision. MAP killed that gap. Our buyers now feel like partners in the process, not targets.", name:"Sarah L.", role:"VP of Sales · Series B SaaS Company" },
-  { av:"MR", avClass:"test-av-2", quote:"Our forecast accuracy went from a guess to a real number. When buyers are actively updating tasks in the MAP, you know a deal is real. When they go silent, you know early enough to do something about it.", name:"Marcus R.", role:"CRO · Enterprise Software Firm" },
-  { av:"AK", avClass:"test-av-3", quote:"I was skeptical another tool would help. But MAP doesn't replace anything — it fills the gap that no CRM was ever designed to fill. The space between you and your buyer.", name:"Ariana K.", role:"Revenue Operations Lead · B2B Services" },
-];
-
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState("p1");
-  const [slide, setSlide] = useState(0);
   const [ctaDone, setCtaDone] = useState(false);
-
-  // Testimonial auto-rotate
-  useEffect(() => {
-    const t = setInterval(() => setSlide(s => (s + 1) % 3), 5000);
-    return () => clearInterval(t);
-  }, []);
 
   // All vanilla-JS interactivity
   useEffect(() => {
@@ -996,46 +964,6 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-
-        {/* Wave: integrations → testimonials */}
-        <div className="wave-wrap" style={{background:"#090b10"}}>
-          <svg viewBox="0 0 1440 60" preserveAspectRatio="none" height={60} xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,60 C600,0 900,60 1440,10 L1440,60 Z" fill="#f7f8fc"/>
-          </svg>
-        </div>
-
-        {/* ── TESTIMONIALS ── */}
-        <section id="ltestimonials">
-          <div className="con">
-            <div className="test-inner">
-              <div className="rev"><span className="slabel slabel-g">What Teams Are Saying</span></div>
-              <span className="test-qm rev">&ldquo;</span>
-              <div className="test-track">
-                <div className="test-slides" style={{transform:`translateX(-${slide*100}%)`}}>
-                  {TESTIMONIALS.map((t,i)=>(
-                    <div className="test-slide" key={i}>
-                      <p className="test-quote">&ldquo;{t.quote}&rdquo;</p>
-                      <div className="test-author">
-                        <div className={`test-av ${t.avClass}`}>{t.av}</div>
-                        <div><div className="test-nm">{t.name}</div><div className="test-rl">{t.role}</div></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="test-dots">
-                {TESTIMONIALS.map((_,i)=>(
-                  <div key={i} className={`tdot${slide===i?" active":""}`} onClick={()=>setSlide(i)}></div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Diagonal: testimonials → CTA */}
-        <div style={{background:"#f7f8fc",height:0}}>
-          <div style={{background:"#090b10",clipPath:"polygon(0 0,100% 60px,100% 100%,0 100%)",height:"80px"}}></div>
-        </div>
 
         {/* ── CTA ── */}
         <section id="lcta">
