@@ -153,7 +153,7 @@ const CSS = `
 #lp .prob-hdr { text-align:center; margin-bottom:52px; }
 #lp .prob-hdr .ssub { margin:14px auto 0; }
 #lp .ba-wrap { position:relative; height:460px; border-radius:24px 24px 0 0; overflow:hidden; cursor:col-resize; user-select:none; -webkit-user-select:none; }
-#lp .ba-side { position:absolute; inset:0; padding:48px 60px; display:flex; flex-direction:column; justify-content:center; }
+#lp .ba-side { position:absolute; inset:0; padding:48px 60px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; }
 #lp .ba-before { background:#0c0e15; z-index:2; clip-path:inset(0 35% 0 0); }
 #lp .ba-after { background:#ecfdf5; z-index:1; }
 #lp .ba-tag { font-family:var(--fd); font-size:.6rem; font-weight:800; letter-spacing:3px; text-transform:uppercase; margin-bottom:18px; }
@@ -699,7 +699,7 @@ export default function LandingPage() {
         {/* ── NAV ── */}
         <nav id="lnav">
           <div className="nav-i con">
-            <a href="#lp" className="logo">MAP<em>.</em></a>
+            <a href="#lp" className="logo">Antistall<em>.</em></a>
             <ul className="nav-links">
               <li><a href="#lproblem">The Problem</a></li>
               <li><a href="#lhow">How It Works</a></li>
@@ -821,7 +821,7 @@ export default function LandingPage() {
           <div className="con">
             <div className="ba-wrap" id="baWrap">
               <div className="ba-side ba-before" id="baBefore">
-                <div className="ba-tag">← Without MAP</div>
+                <div className="ba-tag">← Without Antistall</div>
                 <h3 className="ba-h">Chaos, silence,<br />lost momentum.</h3>
                 <ul className="ba-list">
                   {["No shared next steps — buyers disappear for weeks","Reps can't see what's actually blocking the deal","Managers guess on pipeline health and forecast","Buyers forget what they committed to","Late-stage surprises kill deals that should close"].map(s => (
@@ -830,7 +830,7 @@ export default function LandingPage() {
                 </ul>
               </div>
               <div className="ba-side ba-after">
-                <div className="ba-tag">With MAP →</div>
+                <div className="ba-tag">With Antistall →</div>
                 <h3 className="ba-h">Aligned. Accountable.<br />Moving forward.</h3>
                 <ul className="ba-list">
                   {["Shared timeline both sides can see and update","Every task has a clear owner and due date","Managers see deal health at a glance — no guessing","Auto-reminders nudge buyers before tasks slip","Mutual commitment accelerates decisions"].map(s => (
@@ -869,7 +869,7 @@ export default function LandingPage() {
               </div>
               <div className="metric rev d3">
                 <div><span className="metric-num" data-target="3" data-decimal=".2">0</span><span className="metric-sfx">x</span></div>
-                <div className="metric-lbl"><b>More buyer touchpoints</b><br />MAP deals generate far more engagement</div>
+                <div className="metric-lbl"><b>More buyer touchpoints</b><br />Antistall deals generate far more engagement</div>
               </div>
             </div>
           </div>
@@ -1063,7 +1063,7 @@ export default function LandingPage() {
           <div className="con">
             <div className="footer-grid">
               <div className="fbrand">
-                <a href="#lp" className="logo">MAP<em>.</em></a>
+                <a href="#lp" className="logo">Antistall<em>.</em></a>
                 <p>Shared action plans that move deals from stalled to signed. Built for modern B2B sales teams.</p>
               </div>
               <div className="fcol">
@@ -1095,7 +1095,7 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="footer-btm">
-              <div className="footer-copy">&copy; 2025 MAP. All rights reserved.</div>
+              <div className="footer-copy">&copy; 2025 Antistall. All rights reserved.</div>
               <div className="footer-socs">
                 {[
                   ["Twitter",<svg key="tw" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>],

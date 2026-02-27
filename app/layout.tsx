@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MAP — Mutual Action Plans",
-  description: "Collaborative deal roadmaps between service providers and clients.",
+  title: "Antistall — Keep Deals Moving",
+  description: "Shared action plans that move deals from stalled to signed.",
 };
 
 export default function RootLayout({

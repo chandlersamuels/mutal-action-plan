@@ -304,7 +304,7 @@ export function ClientMapView({ shareToken, initialMap, permissions }: Props) {
 
         {/* Footer */}
         <p className="text-center text-xs mt-10 text-muted-foreground">
-          Powered by MAP · Mutual Action Plan
+          Powered by Antistall
         </p>
       </div>
     </div>

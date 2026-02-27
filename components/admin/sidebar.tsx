@@ -86,7 +86,7 @@ const Logo = () => (
       <Zap className="h-4 w-4 text-white" />
     </div>
     <span className="text-sm font-semibold tracking-wide text-sidebar-foreground">
-      MAP
+      Antistall
     </span>
   </div>
 );

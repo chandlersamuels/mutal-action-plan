@@ -12,9 +12,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-sm"
             style={{ backgroundColor: "oklch(0.7248 0.2145 145.7)" }}
           >
-            M
+            A
           </div>
-          <span className="text-white font-semibold text-lg tracking-tight">MAP</span>
+          <span className="text-white font-semibold text-lg tracking-tight">Antistall</span>
         </div>
 
         {/* Tagline */}
@@ -48,7 +48,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         <p className="text-gray-600 text-xs">
-          © {new Date().getFullYear()} MAP. All rights reserved.
+          © {new Date().getFullYear()} Antistall. All rights reserved.
         </p>
       </div>
 
@@ -60,9 +60,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             className="w-7 h-7 rounded-md flex items-center justify-center font-bold text-white text-xs"
             style={{ backgroundColor: "oklch(0.7248 0.2145 145.7)" }}
           >
-            M
+            A
           </div>
-          <span className="font-semibold text-gray-900 text-base tracking-tight">MAP</span>
+          <span className="font-semibold text-gray-900 text-base tracking-tight">Antistall</span>
         </div>
 
         {children}
