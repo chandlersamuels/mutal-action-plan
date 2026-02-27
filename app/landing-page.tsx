@@ -722,7 +722,7 @@ export default function LandingPage() {
               {/* Left */}
               <div>
                 <div className="hero-badge"><span className="bdot"></span>Now in Early Access</div>
-                <h1>Deals die<br />in the <span className="h1-mark">dark</span>.<br />Not anymore.</h1>
+                <h1>Turn every buyer<br />into a <span className="h1-mark">partner</span>.</h1>
                 <p className="hero-sub">A shared Mutual Action Plan keeps you and your buyer aligned on every step — from first call to signed contract. No more radio silence. No more surprises.</p>
                 <div className="hero-ctas">
                   <Link href="/sign-up" className="btn btn-g">Start Closing Faster →</Link>
