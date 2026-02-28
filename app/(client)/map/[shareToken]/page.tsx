@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { isTokenExpired } from "@/lib/share-token";
 import { ClientMapView } from "@/components/client/client-map-view";
+import { PinGate } from "@/components/client/pin-gate";
 
 export default async function ClientMapPage({
   params,
@@ -16,6 +18,22 @@ export default async function ClientMapPage({
 
   if (!tokenRecord || !tokenRecord.isActive || isTokenExpired(tokenRecord.expiresAt)) {
     notFound();
+  }
+
+  // --- PIN gate ---
+  if (tokenRecord.pinCodeHash) {
+    const cookieStore = await cookies();
+    const pinVerified = cookieStore.get(`map-pin-${tokenRecord.id}`)?.value === "verified";
+    if (!pinVerified) {
+      const mapForPin = await prisma.map.findUnique({
+        where: { id: tokenRecord.mapId },
+        include: {
+          deal: { select: { organization: { select: { name: true } } } },
+        },
+      });
+      const orgName = mapForPin?.deal.organization.name ?? "Your provider";
+      return <PinGate shareToken={shareToken} orgName={orgName} />;
+    }
   }
 
   // Increment view count
@@ -33,7 +51,9 @@ export default async function ClientMapPage({
       deal: {
         select: {
           name: true,
-          client: { select: { companyName: true } },
+          targetCloseDate: true,
+          client: { select: { companyName: true, logoUrl: true } },
+          organization: { select: { name: true, logoUrl: true } },
         },
       },
       phases: {
@@ -62,6 +82,7 @@ export default async function ClientMapPage({
               displayOrder: true,
               createdAt: true,
               updatedAt: true,
+              // Deliberately excluded: internalNotes, isForecastMilestone, forecastProbability
             },
           },
         },

@@ -7,6 +7,8 @@ import { ArrowLeft, MapIcon, User, DollarSign, Calendar, ChevronRight } from "lu
 import { cn } from "@/lib/utils";
 import type { DealStage } from "@prisma/client";
 import { DealShareButton } from "@/components/admin/deal-share-button";
+import { DeleteDealButton } from "@/components/admin/delete-deal-button";
+import { ClientLogoSection } from "@/components/admin/client-logo-section";
 
 const STAGE_LABELS: Record<DealStage, string> = {
   DISCOVERY: "Discovery",
@@ -57,13 +59,16 @@ export default async function DealDetailPage({
 
   return (
     <div className="px-4 py-6 sm:p-8 max-w-5xl mx-auto">
-      <Link
-        href="/deals"
-        className="inline-flex items-center gap-1.5 text-sm mb-7 transition-colors text-muted-foreground hover:text-primary"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to deals
-      </Link>
+      <div className="flex items-center justify-between mb-7">
+        <Link
+          href="/deals"
+          className="inline-flex items-center gap-1.5 text-sm transition-colors text-muted-foreground hover:text-primary"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to deals
+        </Link>
+        <DeleteDealButton dealId={deal.id} dealName={deal.name} />
+      </div>
 
       {/* Deal header */}
       <div className="flex items-start justify-between mb-8">
@@ -137,6 +142,16 @@ export default async function DealDetailPage({
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Client branding */}
+      <div className="glass-card rounded-2xl px-6 py-5 mb-6">
+        <h2 className="text-sm font-semibold text-foreground mb-4">Client branding</h2>
+        <ClientLogoSection
+          dealId={deal.id}
+          initialLogoUrl={deal.client.logoUrl ?? null}
+          clientName={deal.client.companyName}
+        />
       </div>
 
       {/* Action Plan Section */}

@@ -128,6 +128,7 @@ model Client {
   organizationId   String
   companyName      String
   website          String?
+  logoUrl          String?  // uploaded via /api/upload
   hubspotCompanyId String? // Phase 3
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -253,6 +254,7 @@ model MapShareToken {
   allowClientEdits Boolean   @default(true)
   allowClientNotes Boolean   @default(true)
   expiresAt        DateTime?
+  pinCodeHash      String?   // SHA-256 hash of PIN; null means no PIN required
   createdById      String
   lastAccessedAt   DateTime?
   totalViews       Int       @default(0)
