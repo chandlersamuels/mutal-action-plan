@@ -9,6 +9,7 @@ import type { DealStage } from "@prisma/client";
 import { DealShareButton } from "@/components/admin/deal-share-button";
 import { DeleteDealButton } from "@/components/admin/delete-deal-button";
 import { ClientLogoSection } from "@/components/admin/client-logo-section";
+import { CreatePlanButton } from "@/components/admin/create-plan-button";
 
 const STAGE_LABELS: Record<DealStage, string> = {
   DISCOVERY: "Discovery",
@@ -196,9 +197,7 @@ export default async function DealDetailPage({
                 <p className="text-sm text-muted-foreground">
                   No action plan yet. Create one to start collaborating with your client.
                 </p>
-                <Button asChild size="sm" className="btn-glow">
-                  <Link href={`/deals/${deal.id}/map`}>Create plan</Link>
-                </Button>
+                <CreatePlanButton dealId={deal.id} dealName={deal.name} />
               </div>
             ) : !hasPhases ? (
               <div className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">

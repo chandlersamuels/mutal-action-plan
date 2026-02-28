@@ -19,10 +19,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, ChevronDown, ChevronRight, Copy, Check } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronRight, Copy, Check, BookmarkPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MapWithPhases, MapTaskWithRelations } from "@/types";
 import type { MapTask, MapShareToken, TaskOwner, TaskStatus } from "@prisma/client";
+import { SaveTemplateDialog } from "@/components/admin/save-template-dialog";
 
 const STATUS_CLASSES: Record<TaskStatus, { className: string; label: string }> = {
   NOT_STARTED: { className: "bg-muted text-muted-foreground", label: "Not Started" },
@@ -55,6 +56,7 @@ export function MapEditor({ dealId, initialMap }: Props) {
   } | null>(null);
   const [newPhaseName, setNewPhaseName] = useState("");
   const [addingPhase, setAddingPhase] = useState(false);
+  const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
 
   async function refreshMap() {
     const res = await fetch(`/api/deals/${dealId}/map`);
@@ -105,7 +107,21 @@ export function MapEditor({ dealId, initialMap }: Props) {
         <h2 className="text-sm font-semibold text-foreground">
           {map.title}
         </h2>
+        <Button
+          size="sm"
+          variant="outline"
+          className="rounded-xl gap-1.5"
+          onClick={() => setSaveTemplateOpen(true)}
+        >
+          <BookmarkPlus className="h-3.5 w-3.5" />
+          Save as template
+        </Button>
       </div>
+      <SaveTemplateDialog
+        mapId={map.id}
+        open={saveTemplateOpen}
+        onOpenChange={setSaveTemplateOpen}
+      />
 
       {/* Phases */}
       <div className="flex-1 overflow-auto p-6 space-y-3">

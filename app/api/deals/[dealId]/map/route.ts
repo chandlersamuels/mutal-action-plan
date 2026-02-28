@@ -57,12 +57,71 @@ export async function POST(
     return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const map = await prisma.map.create({
-    data: {
-      dealId,
-      title: parsed.data.title,
-      createdById: session.userId,
+  const { templateId } = parsed.data;
+
+  if (!templateId) {
+    const map = await prisma.map.create({
+      data: { dealId, title: parsed.data.title, createdById: session.userId },
+    });
+    return NextResponse.json(map, { status: 201 });
+  }
+
+  // Fetch template scoped to org or default
+  const template = await prisma.mapTemplate.findFirst({
+    where: {
+      id: templateId,
+      OR: [
+        { organizationId: session.organizationId },
+        { isDefault: true },
+      ],
     },
+    include: {
+      phases: {
+        orderBy: { displayOrder: "asc" },
+        include: { tasks: { orderBy: { displayOrder: "asc" } } },
+      },
+    },
+  });
+  if (!template) {
+    return NextResponse.json({ error: "Template not found" }, { status: 404 });
+  }
+
+  const map = await prisma.$transaction(async (tx) => {
+    const newMap = await tx.map.create({
+      data: { dealId, title: parsed.data.title, createdById: session.userId },
+    });
+
+    for (const templatePhase of template.phases) {
+      const phase = await tx.mapPhase.create({
+        data: {
+          mapId: newMap.id,
+          name: templatePhase.name,
+          displayOrder: templatePhase.displayOrder,
+        },
+      });
+
+      if (templatePhase.tasks.length > 0) {
+        await tx.mapTask.createMany({
+          data: templatePhase.tasks.map((t) => ({
+            phaseId: phase.id,
+            mapId: newMap.id,
+            title: t.title,
+            description: t.description,
+            owner: t.owner,
+            estimatedDays: t.estimatedDays,
+            successCriteria: t.successCriteria,
+            isClientVisible: t.isClientVisible,
+            isTbdWithClient: t.isTbdWithClient,
+            isForecastMilestone: t.isForecastMilestone,
+            forecastProbability: t.forecastProbability,
+            displayOrder: t.displayOrder,
+            status: "NOT_STARTED" as const,
+          })),
+        });
+      }
+    }
+
+    return newMap;
   });
 
   return NextResponse.json(map, { status: 201 });
