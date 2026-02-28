@@ -8,23 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, AlertCircle } from "lucide-react";
-import type { Client, DealStage } from "@prisma/client";
-
-const STAGES: { value: DealStage; label: string }[] = [
-  { value: "DISCOVERY", label: "Discovery" },
-  { value: "PROPOSAL", label: "Proposal" },
-  { value: "EVALUATION", label: "Evaluation" },
-  { value: "SOW_REVIEW", label: "SOW Review" },
-  { value: "NEGOTIATION", label: "Negotiation" },
-];
+import type { Client } from "@prisma/client";
+import type { StageConfig } from "@/lib/stages";
 
 export default function NewDealPage() {
   const router = useRouter();
   const [clients, setClients] = useState<Client[]>([]);
+  const [stages, setStages] = useState<StageConfig[]>([]);
   const [form, setForm] = useState({
     name: "",
     clientId: "",
-    stage: "DISCOVERY" as DealStage,
+    stage: "DISCOVERY",
     dealValue: "",
     targetCloseDate: "",
   });
@@ -34,9 +28,14 @@ export default function NewDealPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch("/api/clients")
+    fetch("/api/clients").then((r) => r.json()).then(setClients).catch(() => {});
+    fetch("/api/settings/stages")
       .then((r) => r.json())
-      .then(setClients)
+      .then((d) => {
+        const active = (d.stages as StageConfig[]).filter((s) => !s.isTerminal);
+        setStages(active);
+        if (active.length > 0) setForm((f) => ({ ...f, stage: active[0].key }));
+      })
       .catch(() => {});
   }, []);
 
@@ -186,14 +185,14 @@ export default function NewDealPage() {
               </Label>
               <Select
                 value={form.stage}
-                onValueChange={(v) => setForm({ ...form, stage: v as DealStage })}
+                onValueChange={(v) => setForm({ ...form, stage: v })}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {STAGES.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>
+                  {stages.map((s) => (
+                    <SelectItem key={s.key} value={s.key}>
                       {s.label}
                     </SelectItem>
                   ))}

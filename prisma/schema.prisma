@@ -32,15 +32,6 @@ enum TaskStatus {
   BLOCKED
 }
 
-enum DealStage {
-  DISCOVERY
-  PROPOSAL
-  EVALUATION
-  SOW_REVIEW
-  NEGOTIATION
-  CLOSED_WON
-  CLOSED_LOST
-}
 
 enum MapStatus {
   DRAFT
@@ -85,6 +76,7 @@ model Organization {
   name                String
   slug                String    @unique
   logoUrl             String?
+  stageLabels         Json?     // StageConfig[] — custom pipeline stages
   hubspotPortalId     String?   @unique // Phase 3
   hubspotAccessToken  String? // Phase 3 (encrypted)
   hubspotRefreshToken String? // Phase 3 (encrypted)
@@ -164,7 +156,7 @@ model Deal {
   ownerId         String
   name            String
   dealValue       Decimal?  @db.Decimal(12, 2)
-  stage           DealStage @default(DISCOVERY)
+  stage           String    @default("DISCOVERY")
   targetCloseDate DateTime?
   actualCloseDate DateTime?
   hubspotDealId   String? // Phase 3

@@ -1,16 +1,20 @@
 import Link from "next/link";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Puzzle, Building2 } from "lucide-react";
+import { Users, Puzzle, Building2, Layers } from "lucide-react";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { OrgLogoSection } from "@/components/admin/org-logo-section";
+import { DealStagesEditor } from "@/components/admin/deal-stages-editor";
+import { resolveStages } from "@/lib/stages";
 
 export default async function SettingsPage() {
   const session = await getAdminSession();
   const org = await prisma.organization.findUnique({
     where: { id: session!.organizationId },
-    select: { id: true, name: true, logoUrl: true },
+    select: { id: true, name: true, logoUrl: true, stageLabels: true },
   });
+
+  const stages = resolveStages(org?.stageLabels);
 
   return (
     <div className="p-8 max-w-3xl mx-auto space-y-8">
@@ -29,10 +33,23 @@ export default async function SettingsPage() {
             </p>
           </div>
         </div>
-        <OrgLogoSection
-          orgName={org?.name ?? ""}
-          initialLogoUrl={org?.logoUrl ?? null}
-        />
+        <OrgLogoSection orgName={org?.name ?? ""} initialLogoUrl={org?.logoUrl ?? null} />
+      </div>
+
+      {/* Deal Stages */}
+      <div className="glass-card rounded-2xl px-6 py-5 space-y-5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+            <Layers className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">Deal stages</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Add, remove, and rename stages to match your CRM or sales process.
+            </p>
+          </div>
+        </div>
+        <DealStagesEditor initialStages={stages} />
       </div>
 
       {/* Other settings cards */}

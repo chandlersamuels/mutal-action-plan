@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { TaskOwner, TaskStatus, DealStage, MapStatus } from "@prisma/client";
+import { TaskOwner, TaskStatus, MapStatus } from "@prisma/client";
 
 export const createDealSchema = z.object({
   name: z.string().min(1).max(255),
   clientId: z.string().cuid(),
   dealValue: z.number().positive().optional(),
-  stage: z.nativeEnum(DealStage).optional(),
+  stage: z.string().min(1).max(64).optional(),
   targetCloseDate: z.string().datetime().optional(),
 });
 

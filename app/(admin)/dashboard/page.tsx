@@ -4,27 +4,8 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Briefcase, MapIcon, Plus, TrendingUp, ArrowRight } from "lucide-react";
-import { DealStage, MapStatus } from "@prisma/client";
-
-const STAGE_LABELS: Record<DealStage, string> = {
-  DISCOVERY: "Discovery",
-  PROPOSAL: "Proposal",
-  EVALUATION: "Evaluation",
-  SOW_REVIEW: "SOW Review",
-  NEGOTIATION: "Negotiation",
-  CLOSED_WON: "Closed Won",
-  CLOSED_LOST: "Closed Lost",
-};
-
-const STAGE_COLORS: Record<DealStage, string> = {
-  DISCOVERY: "bg-slate-100 text-slate-600 dark:bg-slate-800/60 dark:text-slate-300",
-  PROPOSAL: "bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300",
-  EVALUATION: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300",
-  SOW_REVIEW: "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300",
-  NEGOTIATION: "bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300",
-  CLOSED_WON: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300",
-  CLOSED_LOST: "bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-300",
-};
+import { MapStatus } from "@prisma/client";
+import { resolveStages, stageLabel, stageColorClass } from "@/lib/stages";
 
 export default async function DashboardPage() {
   const session = await getAdminSession();
@@ -35,10 +16,17 @@ export default async function DashboardPage() {
     clerkUser?.emailAddresses[0]?.emailAddress ||
     "there";
 
+  const org = await prisma.organization.findUnique({
+    where: { id: orgId },
+    select: { stageLabels: true },
+  });
+  const stages = resolveStages(org?.stageLabels);
+  const terminalKeys = stages.filter((s) => s.isTerminal).map((s) => s.key);
+
   const [totalDeals, activeDeals, activeMaps, recentDeals] = await Promise.all([
     prisma.deal.count({ where: { organizationId: orgId, isArchived: false } }),
     prisma.deal.count({
-      where: { organizationId: orgId, isArchived: false, stage: { notIn: ["CLOSED_WON", "CLOSED_LOST"] } },
+      where: { organizationId: orgId, isArchived: false, stage: { notIn: terminalKeys } },
     }),
     prisma.map.count({
       where: { deal: { organizationId: orgId }, status: MapStatus.ACTIVE },
@@ -174,9 +162,9 @@ export default async function DashboardPage() {
                     </span>
                   )}
                   <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STAGE_COLORS[deal.stage]}`}
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${stageColorClass(stages, deal.stage)}`}
                   >
-                    {STAGE_LABELS[deal.stage]}
+                    {stageLabel(stages, deal.stage)}
                   </span>
                 </div>
               </Link>
