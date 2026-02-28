@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   title: "Antistall — Mutual Action Plans That Keep Deals Moving",
   description: "Shared action plans that move deals from stalled to signed.",
   openGraph: {
-    title: "Antistall — Mutual Action Plans That Keep Deals Moving",
+    title: "Deals close faster when nothing stalls.",
     description: "Shared action plans that move deals from stalled to signed.",
     url: "https://antistall.com",
     siteName: "Antistall",
