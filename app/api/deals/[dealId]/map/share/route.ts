@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHash } from "crypto";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createShareTokenSchema } from "@/lib/validations";
@@ -46,13 +47,15 @@ export async function POST(
     return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
   }
 
+  const { pinCode, ...rest } = parsed.data;
   const token = await prisma.mapShareToken.create({
     data: {
       mapId: map.id,
       token: generateShareToken(),
       createdById: session.userId,
-      ...parsed.data,
-      expiresAt: parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : undefined,
+      ...rest,
+      expiresAt: rest.expiresAt ? new Date(rest.expiresAt) : undefined,
+      pinCodeHash: pinCode ? createHash("sha256").update(pinCode).digest("hex") : undefined,
     },
   });
 

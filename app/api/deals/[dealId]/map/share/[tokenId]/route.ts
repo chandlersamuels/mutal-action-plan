@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHash } from "crypto";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { updateShareTokenSchema } from "@/lib/validations";
@@ -23,11 +24,16 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
   }
 
+  const { pinCode, ...rest } = parsed.data;
   const updated = await prisma.mapShareToken.update({
     where: { id: tokenId },
     data: {
-      ...parsed.data,
-      expiresAt: parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : undefined,
+      ...rest,
+      expiresAt: rest.expiresAt ? new Date(rest.expiresAt) : undefined,
+      // null clears the PIN; a string sets a new one; undefined leaves it unchanged
+      ...(pinCode !== undefined
+        ? { pinCodeHash: pinCode === null ? null : createHash("sha256").update(pinCode).digest("hex") }
+        : {}),
     },
   });
 

@@ -8,7 +8,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Link2, Plus, Copy, Check, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Link2, Plus, Copy, Check, Trash2, Lock, LockOpen } from "lucide-react";
 import type { MapShareToken } from "@prisma/client";
 
 interface Props {
@@ -23,8 +25,12 @@ export function DealShareButton({ dealId, mapId, hasPhases, initialTokens }: Pro
   const [token, setToken] = useState<MapShareToken | null>(initialTokens[0] ?? null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPinInput, setShowPinInput] = useState(false);
+  const [pinValue, setPinValue] = useState("");
+  const [pinSaving, setPinSaving] = useState(false);
 
   const canShare = !!mapId && hasPhases;
+  const isPinProtected = !!token?.pinCodeHash;
 
   async function createShareLink() {
     if (!mapId) return;
@@ -51,6 +57,36 @@ export function DealShareButton({ dealId, mapId, hasPhases, initialTokens }: Pro
       body: JSON.stringify({ isActive: false }),
     });
     setToken(null);
+  }
+
+  async function savePin() {
+    if (!token) return;
+    setPinSaving(true);
+    const res = await fetch(`/api/deals/${dealId}/map/share/${token.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pinCode: pinValue.trim() || null }),
+    });
+    if (res.ok) {
+      setToken(await res.json());
+      setShowPinInput(false);
+      setPinValue("");
+    }
+    setPinSaving(false);
+  }
+
+  async function removePin() {
+    if (!token) return;
+    setPinSaving(true);
+    const res = await fetch(`/api/deals/${dealId}/map/share/${token.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pinCode: null }),
+    });
+    if (res.ok) {
+      setToken(await res.json());
+    }
+    setPinSaving(false);
   }
 
   function copyShareUrl() {
@@ -81,7 +117,8 @@ export function DealShareButton({ dealId, mapId, hasPhases, initialTokens }: Pro
 
           <div className="mt-1">
             {token ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
+                {/* Link display */}
                 <div className="rounded-xl bg-muted border border-border p-3.5 space-y-2.5">
                   <code className="block text-xs text-foreground break-all leading-relaxed">
                     {`${window.location.origin}/map/${token.token}`}
@@ -107,9 +144,69 @@ export function DealShareButton({ dealId, mapId, hasPhases, initialTokens }: Pro
                     </Button>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Anyone with this link can view the action plan. Revoke it to disable access.
-                </p>
+
+                {/* PIN protection */}
+                <div className="rounded-xl border border-border p-3.5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {isPinProtected
+                        ? <Lock className="h-3.5 w-3.5 text-primary" />
+                        : <LockOpen className="h-3.5 w-3.5 text-muted-foreground" />}
+                      <span className="text-xs font-medium text-foreground">PIN protection</span>
+                      {isPinProtected && (
+                        <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium bg-primary/10 text-primary">
+                          On
+                        </span>
+                      )}
+                    </div>
+                    {isPinProtected ? (
+                      <div className="flex gap-1.5">
+                        <Button variant="ghost" size="sm" className="h-7 px-2.5 text-xs"
+                          onClick={() => setShowPinInput(!showPinInput)}>
+                          Change PIN
+                        </Button>
+                        <Button variant="ghost" size="sm"
+                          className="h-7 px-2.5 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={removePin} disabled={pinSaving}>
+                          Remove
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button variant="ghost" size="sm" className="h-7 px-2.5 text-xs"
+                        onClick={() => setShowPinInput(!showPinInput)}>
+                        Add PIN
+                      </Button>
+                    )}
+                  </div>
+
+                  {showPinInput && (
+                    <div className="space-y-2 pt-1 border-t border-border">
+                      <Label className="text-xs">
+                        {isPinProtected ? "New PIN" : "Set a PIN (4–16 characters)"}
+                      </Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="text"
+                          value={pinValue}
+                          onChange={(e) => setPinValue(e.target.value)}
+                          placeholder="e.g. 1234"
+                          maxLength={16}
+                          className="h-8 text-sm rounded-lg flex-1"
+                        />
+                        <Button size="sm" className="h-8 px-3 text-xs rounded-lg"
+                          onClick={savePin} disabled={pinSaving || pinValue.trim().length < 4}>
+                          {pinSaving ? "Saving…" : "Save"}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  <p className="text-xs text-muted-foreground">
+                    {isPinProtected
+                      ? "Clients must enter this PIN before viewing the plan."
+                      : "Optionally require a PIN before clients can view the plan."}
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="space-y-3">

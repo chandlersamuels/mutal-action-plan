@@ -73,6 +73,7 @@ export const createShareTokenSchema = z.object({
   allowClientEdits: z.boolean().optional(),
   allowClientNotes: z.boolean().optional(),
   expiresAt: z.string().datetime().optional(),
+  pinCode: z.string().min(4).max(16).optional(),
 });
 
 export const updateShareTokenSchema = z.object({
@@ -80,6 +81,7 @@ export const updateShareTokenSchema = z.object({
   allowClientEdits: z.boolean().optional(),
   allowClientNotes: z.boolean().optional(),
   expiresAt: z.string().datetime().optional(),
+  pinCode: z.string().min(4).max(16).nullable().optional(),
 });
 
 export const reorderSchema = z.array(
