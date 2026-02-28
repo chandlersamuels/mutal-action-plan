@@ -94,18 +94,18 @@ export default function NewDealPage() {
     <div className="p-8 max-w-2xl mx-auto">
       <Link
         href="/deals"
-        className="inline-flex items-center gap-1.5 text-sm mb-7 transition-colors text-[oklch(0.55_0.02_265)] hover:text-[oklch(0.7248_0.2145_145.7)]"
+        className="inline-flex items-center gap-1.5 text-sm mb-7 transition-colors text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to deals
       </Link>
 
       <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="px-6 py-5" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-          <h1 className="text-lg font-semibold" style={{ color: "oklch(0.13 0.01 265)" }}>
+        <div className="px-6 py-5 border-b border-border">
+          <h1 className="text-lg font-semibold text-foreground">
             New Deal
           </h1>
-          <p className="text-sm mt-0.5" style={{ color: "oklch(0.52 0.03 265)" }}>
+          <p className="text-sm mt-0.5 text-muted-foreground">
             Fill in the details to create a new deal.
           </p>
         </div>
@@ -113,15 +113,14 @@ export default function NewDealPage() {
         <div className="px-6 py-6">
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="flex items-start gap-3 rounded-xl px-4 py-3 text-sm border"
-                style={{ background: "oklch(0.60 0.2 27 / 0.08)", borderColor: "oklch(0.60 0.2 27 / 0.2)", color: "oklch(0.45 0.15 27)" }}>
+              <div className="flex items-start gap-3 rounded-xl px-4 py-3 text-sm border bg-destructive/10 border-destructive/20 text-destructive">
                 <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 {error}
               </div>
             )}
 
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium" style={{ color: "oklch(0.25 0.01 265)" }}>
+              <Label className="text-sm font-medium text-foreground">
                 Deal name *
               </Label>
               <Input
@@ -134,7 +133,7 @@ export default function NewDealPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium" style={{ color: "oklch(0.25 0.01 265)" }}>
+              <Label className="text-sm font-medium text-foreground">
                 Client *
               </Label>
               {!showNewClient ? (
@@ -182,7 +181,7 @@ export default function NewDealPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium" style={{ color: "oklch(0.25 0.01 265)" }}>
+              <Label className="text-sm font-medium text-foreground">
                 Stage
               </Label>
               <Select
@@ -204,7 +203,7 @@ export default function NewDealPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium" style={{ color: "oklch(0.25 0.01 265)" }}>
+                <Label className="text-sm font-medium text-foreground">
                   Deal value ($)
                 </Label>
                 <Input
@@ -218,7 +217,7 @@ export default function NewDealPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium" style={{ color: "oklch(0.25 0.01 265)" }}>
+                <Label className="text-sm font-medium text-foreground">
                   Target close date
                 </Label>
                 <Input

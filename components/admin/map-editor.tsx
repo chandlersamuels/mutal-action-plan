@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, ChevronDown, ChevronRight, Copy, Check, Link2 } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronRight, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MapWithPhases, MapTaskWithRelations } from "@/types";
 import type { MapTask, MapShareToken, TaskOwner, TaskStatus } from "@prisma/client";
@@ -55,8 +55,6 @@ export function MapEditor({ dealId, initialMap }: Props) {
   } | null>(null);
   const [newPhaseName, setNewPhaseName] = useState("");
   const [addingPhase, setAddingPhase] = useState(false);
-  const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
   async function refreshMap() {
     const res = await fetch(`/api/deals/${dealId}/map`);
@@ -99,30 +97,6 @@ export function MapEditor({ dealId, initialMap }: Props) {
     await refreshMap();
   }
 
-  async function createShareLink() {
-    const res = await fetch(`/api/deals/${dealId}/map/share`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ allowClientEdits: true, allowClientNotes: true }),
-    });
-    if (res.ok) await refreshMap();
-  }
-
-  async function revokeToken(tokenId: string) {
-    await fetch(`/api/deals/${dealId}/map/share/${tokenId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isActive: false }),
-    });
-    await refreshMap();
-  }
-
-  function copyShareUrl(token: string) {
-    const url = `${window.location.origin}/map/${token}`;
-    navigator.clipboard.writeText(url);
-    setCopiedToken(token);
-    setTimeout(() => setCopiedToken(null), 2000);
-  }
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -131,15 +105,6 @@ export function MapEditor({ dealId, initialMap }: Props) {
         <h2 className="text-sm font-semibold text-foreground">
           {map.title}
         </h2>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={() => setShareModalOpen(true)}
-        >
-          <Link2 className="h-3.5 w-3.5" />
-          Share
-        </Button>
       </div>
 
       {/* Phases */}
@@ -297,51 +262,6 @@ export function MapEditor({ dealId, initialMap }: Props) {
         />
       )}
 
-      {/* Share Modal */}
-      <Dialog open={shareModalOpen} onOpenChange={setShareModalOpen}>
-        <DialogContent className="max-w-lg rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-base">Share this MAP</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 mt-1">
-            {map.shareTokens.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                No active share links. Create one below.
-              </p>
-            )}
-            {map.shareTokens.map((token) => (
-              <div
-                key={token.id}
-                className="flex items-center gap-2 rounded-xl px-3.5 py-2.5 bg-muted border border-border"
-              >
-                <code className="flex-1 min-w-0 text-xs truncate text-foreground">
-                  {window.location.origin}/map/{token.token}
-                </code>
-                <button
-                  className="flex items-center justify-center h-7 w-7 rounded-lg transition-colors flex-shrink-0 text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                  onClick={() => copyShareUrl(token.token)}
-                >
-                  {copiedToken === token.token ? (
-                    <Check className="h-3.5 w-3.5 text-primary" />
-                  ) : (
-                    <Copy className="h-3.5 w-3.5" />
-                  )}
-                </button>
-                <button
-                  className="text-xs font-medium px-2.5 py-1 rounded-lg transition-colors flex-shrink-0 text-destructive hover:bg-destructive/10"
-                  onClick={() => revokeToken(token.id)}
-                >
-                  Revoke
-                </button>
-              </div>
-            ))}
-            <Button onClick={createShareLink} className="w-full btn-glow gap-2 rounded-xl">
-              <Plus className="h-4 w-4" />
-              Create share link
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
