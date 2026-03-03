@@ -84,6 +84,15 @@ export const updateShareTokenSchema = z.object({
   pinCode: z.string().min(4).max(16).nullable().optional(),
 });
 
+export const uploadDocumentSchema = z.object({
+  name: z.string().trim().min(1).max(255),
+});
+
+export const updateDocumentSchema = z.object({
+  name: z.string().trim().min(1).max(255).optional(),
+  isClientVisible: z.boolean().optional(),
+});
+
 export const reorderSchema = z.array(
   z.object({
     id: z.string().cuid(),

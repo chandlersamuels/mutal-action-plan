@@ -293,7 +293,7 @@ interface TaskModalProps {
   onSave: () => void;
 }
 
-function TaskModal({ dealId, phaseId, task, displayOrder, onClose, onSave }: TaskModalProps) {
+export function TaskModal({ dealId, phaseId, task, displayOrder, onClose, onSave }: TaskModalProps) {
   const [form, setForm] = useState({
     title: task?.title ?? "",
     description: task?.description ?? "",

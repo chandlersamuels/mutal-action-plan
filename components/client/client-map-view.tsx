@@ -19,6 +19,13 @@ import {
   Check,
   Sparkles,
   Timer,
+  File,
+  FileText,
+  FileType,
+  Image as ImageIcon,
+  Presentation,
+  Sheet,
+  ExternalLink,
 } from "lucide-react";
 
 interface ClientTask {
@@ -57,10 +64,20 @@ interface ClientMap {
   phases: ClientPhase[];
 }
 
+interface ClientDocument {
+  id: string;
+  name: string;
+  blobUrl: string;
+  mimeType: string;
+  fileSize: number;
+  createdAt: string;
+}
+
 interface Props {
   shareToken: string;
   initialMap: ClientMap;
   permissions: { allowClientEdits: boolean; allowClientNotes: boolean };
+  documents: ClientDocument[];
 }
 
 type PhaseState = "complete" | "active" | "upcoming";
@@ -87,6 +104,35 @@ function formatDate(dateStr: string): string {
     day: "numeric",
     year: "numeric",
   });
+}
+
+function docIcon(mimeType: string) {
+  if (mimeType === "application/pdf")
+    return <FileText className="h-5 w-5 text-red-500 shrink-0" />;
+  if (
+    mimeType === "application/vnd.ms-powerpoint" ||
+    mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+  )
+    return <Presentation className="h-5 w-5 text-orange-500 shrink-0" />;
+  if (
+    mimeType === "application/msword" ||
+    mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  )
+    return <FileType className="h-5 w-5 text-blue-500 shrink-0" />;
+  if (
+    mimeType === "application/vnd.ms-excel" ||
+    mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  )
+    return <Sheet className="h-5 w-5 text-green-600 shrink-0" />;
+  if (mimeType.startsWith("image/"))
+    return <ImageIcon className="h-5 w-5 text-violet-500 shrink-0" />;
+  return <File className="h-5 w-5 text-muted-foreground shrink-0" />;
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function computePhaseStates(phases: ClientPhase[]): Record<string, PhaseState> {
@@ -150,7 +196,7 @@ function PhaseDot({ state }: { state: PhaseState }) {
   );
 }
 
-export function ClientMapView({ shareToken, initialMap, permissions }: Props) {
+export function ClientMapView({ shareToken, initialMap, permissions, documents }: Props) {
   const [map, setMap] = useState(initialMap);
   const [updating, setUpdating] = useState<string | null>(null);
 
@@ -740,6 +786,39 @@ export function ClientMapView({ shareToken, initialMap, permissions }: Props) {
         {map.phases.length === 0 && (
           <div className="glass-card rounded-2xl text-center py-16">
             <p className="text-sm text-muted-foreground">No phases in this plan yet.</p>
+          </div>
+        )}
+
+        {/* ── DOCUMENTS ── */}
+        {documents.length > 0 && (
+          <div className="mt-10">
+            <h3 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-4">
+              Shared Documents
+            </h3>
+            <div className="space-y-2">
+              {documents.map((doc) => (
+                <div
+                  key={doc.id}
+                  className="glass-card rounded-xl px-4 py-3 flex items-center gap-3"
+                >
+                  {docIcon(doc.mimeType)}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{doc.name}</p>
+                    <p className="text-xs text-muted-foreground">{formatBytes(doc.fileSize)}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      fetch(`/api/client/${shareToken}/documents/${doc.id}/view`, { method: "POST" });
+                      window.open(doc.blobUrl, "_blank", "noopener,noreferrer");
+                    }}
+                    className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0"
+                  >
+                    Open
+                    <ExternalLink className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

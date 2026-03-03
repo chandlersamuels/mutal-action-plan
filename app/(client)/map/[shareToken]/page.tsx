@@ -54,6 +54,18 @@ export default async function ClientMapPage({
           targetCloseDate: true,
           client: { select: { companyName: true, logoUrl: true } },
           organization: { select: { name: true, logoUrl: true } },
+          documents: {
+            where: { isClientVisible: true },
+            orderBy: { createdAt: "desc" },
+            select: {
+              id: true,
+              name: true,
+              blobUrl: true,
+              mimeType: true,
+              fileSize: true,
+              createdAt: true,
+            },
+          },
         },
       },
       phases: {
@@ -100,6 +112,10 @@ export default async function ClientMapPage({
         allowClientEdits: tokenRecord.allowClientEdits,
         allowClientNotes: tokenRecord.allowClientNotes,
       }}
+      documents={map.deal.documents.map((d) => ({
+        ...d,
+        createdAt: d.createdAt.toISOString(),
+      }))}
     />
   );
 }

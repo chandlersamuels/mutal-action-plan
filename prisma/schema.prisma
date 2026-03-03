@@ -104,11 +104,12 @@ model User {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization Organization    @relation(fields: [organizationId], references: [id])
-  deals        Deal[]          @relation("DealOwner")
-  createdMaps  Map[]           @relation("MapCreator")
-  shareTokens  MapShareToken[]
-  activityLog  MapActivity[]
+  organization      Organization    @relation(fields: [organizationId], references: [id])
+  deals             Deal[]          @relation("DealOwner")
+  createdMaps       Map[]           @relation("MapCreator")
+  shareTokens       MapShareToken[]
+  activityLog       MapActivity[]
+  uploadedDocuments DealDocument[]
 }
 
 // ─────────────────────────────────────────────
@@ -168,6 +169,7 @@ model Deal {
   client          Client           @relation(fields: [clientId], references: [id])
   owner           User             @relation("DealOwner", fields: [ownerId], references: [id])
   map             Map?
+  documents       DealDocument[]
   hubspotSyncLogs HubspotSyncLog[] // Phase 3
 }
 
@@ -346,6 +348,27 @@ model Notification {
   map              Map            @relation(fields: [mapId], references: [id])
   task             MapTask?       @relation(fields: [taskId], references: [id])
   recipientContact ClientContact? @relation(fields: [recipientContactId], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// DEAL DOCUMENTS
+// ─────────────────────────────────────────────
+
+model DealDocument {
+  id              String   @id @default(cuid())
+  dealId          String
+  uploadedById    String
+  name            String
+  blobUrl         String
+  mimeType        String
+  fileSize        Int
+  views           Int      @default(0)
+  isClientVisible Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  deal       Deal @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  uploadedBy User @relation(fields: [uploadedById], references: [id])
 }
 
 // ─────────────────────────────────────────────

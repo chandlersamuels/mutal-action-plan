@@ -2,14 +2,15 @@ import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapIcon, User, DollarSign, Calendar, ChevronRight } from "lucide-react";
+import { ArrowLeft, MapIcon, User, DollarSign, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { resolveStages, stageLabel, stageColorClass } from "@/lib/stages";
-import { DealShareButton } from "@/components/admin/deal-share-button";
 import { DeleteDealButton } from "@/components/admin/delete-deal-button";
 import { ClientLogoSection } from "@/components/admin/client-logo-section";
 import { CreatePlanButton } from "@/components/admin/create-plan-button";
+import { DealMapPanel } from "@/components/admin/deal-map-panel";
+import { DealDocumentsSection } from "@/components/admin/deal-documents-section";
+import { DealAnalyticsPanel } from "@/components/admin/deal-analytics";
 
 export default async function DealDetailPage({
   params,
@@ -30,12 +31,18 @@ export default async function DealDetailPage({
     include: {
       client: { include: { contacts: true } },
       owner: { select: { name: true, email: true } },
+      documents: { orderBy: { createdAt: "desc" } },
       map: {
         include: {
-          shareTokens: { where: { isActive: true } },
+          shareTokens: { orderBy: { createdAt: "desc" } },
           phases: {
             orderBy: { displayOrder: "asc" },
-            include: { tasks: { orderBy: { displayOrder: "asc" } } },
+            include: {
+              tasks: {
+                orderBy: { displayOrder: "asc" },
+                include: { clientContact: true },
+              },
+            },
           },
         },
       },
@@ -131,125 +138,48 @@ export default async function DealDetailPage({
         ))}
       </div>
 
-      {/* Client branding */}
-      <div className="glass-card rounded-2xl px-6 py-5 mb-6">
-        <h2 className="text-sm font-semibold text-foreground mb-4">Client branding</h2>
-        <ClientLogoSection
+      {/* Analytics */}
+      <DealAnalyticsPanel deal={deal} />
+
+      {/* Client branding + Documents */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div className="glass-card rounded-2xl px-6 py-5">
+          <h2 className="text-sm font-semibold text-foreground mb-4">Client branding</h2>
+          <ClientLogoSection
+            dealId={deal.id}
+            initialLogoUrl={deal.client.logoUrl ?? null}
+            clientName={deal.client.companyName}
+          />
+        </div>
+        <DealDocumentsSection
           dealId={deal.id}
-          initialLogoUrl={deal.client.logoUrl ?? null}
-          clientName={deal.client.companyName}
+          initialDocuments={deal.documents.map((d) => ({
+            ...d,
+            createdAt: d.createdAt.toISOString(),
+          }))}
         />
       </div>
 
       {/* Action Plan Section */}
-      {(() => {
-        const hasMap = !!deal.map;
-        const hasPhases = (deal.map?.phases.length ?? 0) > 0;
-
-        const STATUS_DOT: Record<string, string> = {
-          NOT_STARTED: "bg-muted-foreground/40",
-          IN_PROGRESS:  "bg-primary",
-          COMPLETE:     "bg-emerald-500",
-          AT_RISK:      "bg-amber-500",
-          BLOCKED:      "bg-red-500",
-        };
-
-        return (
-          <div className="glass-card rounded-2xl overflow-hidden">
-            {/* Header */}
-            <div className="flex items-center gap-2.5 px-6 py-4 border-b border-border">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/12">
-                <MapIcon className="h-4 w-4 text-primary" />
-              </div>
-              <h2 className="text-sm font-semibold text-foreground">Action Plan</h2>
-              {hasMap && (
-                <div className="ml-auto flex items-center gap-2">
-                  <Button asChild size="sm" variant="outline" className="shrink-0">
-                    <Link href={`/deals/${deal.id}/map`}>Edit plan</Link>
-                  </Button>
-                  <DealShareButton
-                    dealId={deal.id}
-                    mapId={deal.map!.id}
-                    hasPhases={hasPhases}
-                    initialTokens={deal.map!.shareTokens}
-                  />
-                </div>
-              )}
+      {!deal.map ? (
+        <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="flex items-center gap-2.5 px-6 py-4 border-b border-border">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/12">
+              <MapIcon className="h-4 w-4 text-primary" />
             </div>
-
-            {/* Body */}
-            {!hasMap ? (
-              <div className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
-                <p className="text-sm text-muted-foreground">
-                  No action plan yet. Create one to start collaborating with your client.
-                </p>
-                <CreatePlanButton dealId={deal.id} dealName={deal.name} />
-              </div>
-            ) : !hasPhases ? (
-              <div className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
-                <p className="text-sm text-muted-foreground">
-                  Your plan has no phases yet. Open the editor to build it out.
-                </p>
-                <Button asChild size="sm" variant="outline">
-                  <Link href={`/deals/${deal.id}/map`}>Open editor</Link>
-                </Button>
-              </div>
-            ) : (
-              <div className="divide-y divide-border">
-                {deal.map!.phases.map((phase) => {
-                  const total = phase.tasks.length;
-                  const done  = phase.tasks.filter((t) => t.status === "COMPLETE").length;
-                  const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
-
-                  return (
-                    <div key={phase.id} className="px-6 py-4">
-                      {/* Phase row */}
-                      <div className="flex items-center justify-between gap-3 mb-3">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                          <p className="text-sm font-medium text-foreground truncate">
-                            {phase.name}
-                          </p>
-                        </div>
-                        <span className="text-xs text-muted-foreground shrink-0">
-                          {done}/{total} complete
-                        </span>
-                      </div>
-
-                      {/* Progress bar */}
-                      <div className="h-1 rounded-full bg-muted mb-3">
-                        <div
-                          className="h-1 rounded-full bg-primary transition-all"
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-
-                      {/* Tasks */}
-                      {phase.tasks.length > 0 && (
-                        <div className="space-y-1.5 pl-5">
-                          {phase.tasks.map((task) => (
-                            <div key={task.id} className="flex items-center gap-2">
-                              <span
-                                className={cn(
-                                  "h-1.5 w-1.5 rounded-full shrink-0",
-                                  STATUS_DOT[task.status] ?? "bg-muted-foreground/40"
-                                )}
-                              />
-                              <p className="text-xs text-muted-foreground truncate">
-                                {task.title}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            <h2 className="text-sm font-semibold text-foreground">Action Plan</h2>
           </div>
-        );
-      })()}
+          <div className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
+            <p className="text-sm text-muted-foreground">
+              No action plan yet. Create one to start collaborating with your client.
+            </p>
+            <CreatePlanButton dealId={deal.id} dealName={deal.name} />
+          </div>
+        </div>
+      ) : (
+        <DealMapPanel dealId={deal.id} map={deal.map} />
+      )}
+
     </div>
   );
 }
